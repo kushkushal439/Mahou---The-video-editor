@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Upload page</title>
+    <!-- <link rel="stylesheet" href="upload.css"> -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/upload.css')}}">
+</head>
+<body>
+
+    <header class="header">
+        <h1 class="logo"><a href="{{url_for('intro')}}" style = "color: #ff0000;">Mahou</a></h1>
+          <ul class="main-nav">
+              <li><a href="{{url_for('main')}}">Brew your magic!</a></li>
+              <li><a href="{{url_for('usrimagelist')}}">Gallery</a></li>
+              <li><a href="{{url_for('addimage')}}">Upload Images</a></li>
+              <li><a href="{{ url_for('profile') }}"> Profile</a></li>
+              <form id="logoutForm" action="{{url_for('logout')}}" method="POST">
+                <a href="#" onclick="document.getElementById('logoutForm').submit();" class="logsign">Logout</a>
+             </form>
+          </ul>
+      </header> 
+
+
+
+    <div class="box">
+        <div class="box1">
+            <form id = "form" action ="/addimages" method="POST" enctype="multipart/form-data">
+                <input type= "file"  accept = "image/*" name="file" id="file" multiple onchange="loadFiles(event)" style="display: none;">
+                <label for="file" style = "cursor: pointer; height: fit-content;">   
+                    <div class = "outerbox" id = "outerbox">
+                        <div class="inner" id = "inner">
+                            <img src="{{ url_for('static', filename='usingimg/dragdropbox.png') }}" alt="drag" style = "filter: invert(70%); max-width: 50px;margin-left: 34%; margin-bottom: 12px;">
+                            <!-- <img src="{{ url_for('static', filename='usingimg/cheat.jpg') }}" alt="drag" style = "max-width: 50px;margin-left: 34%; margin-bottom: 12px;"> -->
+                            <br>Drag your image here<br> &nbsp; &nbsp; &nbsp;or choose file
+                        </div>
+                    </div>
+                </label>
+                <div class="forbut">
+                    <button class = "buttons" id = "buttons">Submit</button>
+                </div>
+            </form>
+                <!-- <button class = "buttons" onclick="submitImages()"> Checker</button> -->
+            </div>
+        <div class="box2">
+            <div class="heading">View pics to upload</div>
+            <div class="image-container" id = "image-container">
+            </div>
+            <br><br><br><br>
+            <h3 id = "message" style = "display: none;text-align: center; margin-top: 11dvw; font-size: 1.2em;">"Images successfully uploaded!"</h3>
+        </div>
+
+    </div>
+
+    <script>
+        const droparea = document.getElementById("outerbox");
+        const input = document.getElementById("file");
+        const imgs = []
+
+
+        droparea.addEventListener("dragover", function(e){
+            console.log("Hey dragged over");
+            e.preventDefault();
+        });
+
+        droparea.addEventListener("drop", function(e){
+            e.preventDefault();
+            console.log("Dropped");
+            const files = e.dataTransfer.files;
+            for(let i = 0;i<files.length;i++) {
+                displayandstore(files[i]);
+            }
+        });
+
+
+        function loadFiles(event) {
+            console.log("Hey");
+            var files = event.target.files;
+            var container = document.getElementById('image-container');
+            for(let i = 0;i<files.length;i++) {
+                displayandstore(files[i]);
+            }
+        }
+
+        function displayandstore(file) {
+            const container = document.getElementById("image-container");
+            var image = document.createElement('img');
+            image.src = URL.createObjectURL(file);
+            container.appendChild(image);
+            storeimage(file);
+        }
+
+        function storeimage(file){
+            imgs.push(file);
+        }
+
+        // function display() {
+        //     const container = document.getElementById("image-container");
+        //     for(let i = 0;i<imgs.length;i++) {
+        //         var image = document.createElement('img');
+        //         image.src = URL.createObjectURL(imgs[i]);
+        //         container.appendChild(image);
+        //     }
+        // }
+
+        document.getElementById("form").addEventListener("submit", function(e) {
+            e.preventDefault();
+            var form = document.getElementById("form");
+            var data = new FormData();
+            console.log(imgs.length);
+            for(let i = 0;i<imgs.length;i++) {
+                data.append('data[]', imgs[i]);
+            }
+            fetch("/addimages" ,{
+                method: "POST",
+                body: data
+            })
+
+            imgs.length = 0;
+            var ret = document.getElementById("image-container");
+            ret.innerHTML = '';
+            var div = document.getElementById('message');
+            div.style.display = 'block'; // Display the div
+            
+            setTimeout(function() {
+                div.style.display = 'none'; // Hide the div after 5 seconds
+            }, 2500); // 5000 milliseconds = 5 seconds
+        // .then(response => response.json())
+        // .then(data => console.log(data))
+        // .catch(error => console.error('Error:', error));
+        })
+
+    // function submitImages() {
+    //         const formData = new FormData();
+    //         console.log(imgs.length);
+    //         for (let i = 0; i < imgs.length; i++) {
+    //             formData.append('file[]', imgs[i]);
+    //         }
+    //         console.log(formData);
+
+    //         fetch('/addimages',{
+    //             method: "POST",
+    //             body: formData,
+    //         })
+
+    //     .then(response => response.json())
+    //     .then(data => console.log(data))
+    //     .catch((error) => {
+    //         console.error('Error:', error);
+    //     });
+
+
+    //         // const xhr = new XMLHttpRequest();
+    //         // xhr.open('POST', '/addimages', true);
+    //         // xhr.onload = function() {
+    //         //     if (xhr.status === 200) {
+    //         //         console.log('Images uploaded successfully');
+    //         //         // Optionally, do something after successful upload
+    //         //     } else {
+    //         //         console.log('Error uploading images');
+    //         //         // Optionally, handle errors
+    //         //     }
+    //         // };
+    //         // xhr.send(formData);
+    //     }
+
+    </script>
+</body>
+</html>
