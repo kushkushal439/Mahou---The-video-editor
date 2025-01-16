@@ -6,4 +6,4 @@ To run the app locally:
 - install the requirements by running the command: pip install requirements.txt
 - Finally run python app.py
 
-Or you can access the fully deployed app at mahou.onrender.com
+Or you can access the [fully deployed app here](https://mahou.onrender.com).
